@@ -1,0 +1,109 @@
+<head>
+    <meta charset="UTF-8">
+    <title>Demo</title>
+</head>
+<body>
+
+<h2> spam.h5</h2>
+<form action="/getdata" method="post">
+    <label for F="fname">First Name</label>
+    <input type="text" id="fname" name="fname">
+    <label for="lname">Last name :</label>
+    <input type="text" id="lname" name="lname">
+    <label for="age">Age :</label>
+    <input type="text" id="age" name="age">
+    <button type="submit">Submit</button>
+</form>
+</body>
+</html>
+import flask import Flask, render_template, request
+import pickle
+import numpy as np
+import re
+import nltk
+from nltk.corpus import stopwords
+from nltk.stem import porterstemmer
+import tensorflow.keras.models import load_model
+
+load_model1 = load_model('spam.h5')
+cv = pickle.load(open('cv1.pkl','rb'))
+app = Flask(__name__)
+
+@app.route('/spam',method=['POST','GET'])
+def predicition():
+     return render_template('spam.html')
+
+@app.route('/predict',methods=['POST'])
+def predict():
+    if request.method == 'POST':
+        message = request.form['message']
+        data = message
+
+
+    new_review = str(data)
+    print(new_review)
+    new_review = re.sub('[^a-zA-Z]', ' ',new_review)
+    new_review = new_review.lower()
+    new_review = new_review.split()
+    ps = porterstemmer()
+    all_stopwords = stopwords.words('english')
+    all_stopwords.remove('not')
+    new_review = [ps.stem(word) for word in new_review if not word in  set(all_stopwords)]
+    new_review = ' '.join(new_review)
+    new_corpus = [new_review]
+    new_x_pred = cv.transform(new_corpus).toarray()
+    print(new_x_test)
+    new_y_pred = loaded_model.predict(new_x_test)
+    new_x_pred = np.where(new_y_pred>0.5,1,0)
+    print(new_x_pred)
+    if new_review[0][0]==1:
+        return render_template('result.html', prediction="spam")
+    else :
+        return render_template('result.html', prediction="Not a spam")
+
+
+if(__name__)=="__main__" :
+    port=int(os.environ.get('PORT',5000))
+    app.run(debug=False)
+from flask import Flask
+
+app = Flask(__name__)
+
+
+@app.route('/')
+def hello():
+    return 'hello world'
+
+
+if __name__ == '__main__':
+    app.run()
+
+@app.route('/')
+def home():
+    return render_template('home.html')
+
+@app.route('/getdata', methods=['post'])
+def data():
+    name1 = request.form['fname']
+    name2 = request.form['lname']
+    age = request.form['age']
+    print(name1, name2, int(age))
+    if int(age) >= 18:
+        text = str(name1)+str(name2)+ 'eligible for vote'
+    else:
+        text = str(name1)+str(name2)+ ' not eligible for vote'
+
+    return render_template('Output.html', Output=text)
+
+if __name__ == '__main__':
+    app.run()
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<h2>spam.h5</h2>
+</body>
+</html>
